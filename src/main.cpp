@@ -24,14 +24,9 @@ int BUTTON = 3;
 
 LCD_I2C lcd(0x27, 16, 2);
 
-<<<<<<< HEAD
 #define dhtPin 8  //DHT sensor on pin 8
 DHT dht(dhtPin, DHT11);    
-=======
-#define dhtPin 8  //DHT sensor on pin 2
-DHT dht(dhtPin, DHT11);
 bool buttonpress = true;    
->>>>>>> 827fd510af2638f2db1aaa2f90ede74cdabcf64f
 
 byte degree[] = {   //custom character for degree celcius
   B11011,
@@ -67,14 +62,8 @@ void setup()
   lcd.createChar(0, degree);
 }
 
-<<<<<<< HEAD
 void loop() {
   display();
-=======
-void loop() 
-{
-  buttonpressed();
->>>>>>> 827fd510af2638f2db1aaa2f90ede74cdabcf64f
 }
 
 //gets and sets max and min values of DHT11 sensor
@@ -139,7 +128,6 @@ void LIGHT()
   }
 }
 
-<<<<<<< HEAD
 //screen to display max/min values out+in
 void disOutMax(){
   //DHT11 data
@@ -169,7 +157,9 @@ void display(){
   }else{  //displays max values
     //display max values
   }
-=======
+}
+
+//button code
 void buttonpressed()
 {
   static int lastbuttonstate = HIGH;
@@ -184,7 +174,6 @@ void buttonpressed()
     }
   }
   lastbuttonstate = read;
->>>>>>> 827fd510af2638f2db1aaa2f90ede74cdabcf64f
 
   if(buttonpress)
   {
