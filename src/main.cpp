@@ -12,8 +12,6 @@ void getMax(double insideTemp, double hum);
 void disDHT();
 void LIGHT();
 
-
-
 // KAMY
 #define LDR A0 // LDR at port A0
 int ldr;
@@ -24,6 +22,17 @@ LCD_I2C lcd(0x27, 16, 2);
 
 #define dhtPin 8  //DHT sensor on pin 2
 DHT dht(dhtPin, DHT11);    
+
+byte degree[] = {
+  B11011,
+  B11100,
+  B00100,
+  B00011,
+  B00000,
+  B00000,
+  B00000,
+  B00000
+};
 
 //global variable can be accessed anyware
 float hum, insideTemp;
@@ -42,6 +51,7 @@ void setup() {
   digitalWrite(LED, LOW); // LED OFF at beginning
   digitalWrite(RELAY, LOW); // RELAY OFF at beginning
 
+  lcd.createChar(0, degree);
 }
 
 void loop() {
@@ -67,10 +77,11 @@ void disDHT(){
   if(readDHT()==1){
     lcd.setCursor(0,0);
     lcd.print("Temp=");
-    lcd.print(insideTemp);
+    lcd.print((int) round(insideTemp));
+    lcd.write(0);
     lcd.setCursor(0,1);
     lcd.print("Hum=");
-    lcd.print(hum);
+    lcd.print((int) round(hum));
     lcd.print("%");
     delay(5000);
   }else{
@@ -114,5 +125,5 @@ void LIGHT()
 void display(){
   disDHT();
   LIGHT();
-  
+
 }
