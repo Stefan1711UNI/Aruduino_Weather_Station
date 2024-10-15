@@ -13,16 +13,25 @@ void disDHT();
 void LIGHT();
 void display();
 
+
 // KAMY
 #define LDR A0 // LDR at port A0
 int ldr;
 int LED = 13; // On-board LED at 13
 int RELAY = 2; // RELAY at port 2
+int PED = 0;//pedestrian button status
+int BUTTON = 3;
 
 LCD_I2C lcd(0x27, 16, 2);
 
+<<<<<<< HEAD
 #define dhtPin 8  //DHT sensor on pin 8
 DHT dht(dhtPin, DHT11);    
+=======
+#define dhtPin 8  //DHT sensor on pin 2
+DHT dht(dhtPin, DHT11);
+bool buttonpress = true;    
+>>>>>>> 827fd510af2638f2db1aaa2f90ede74cdabcf64f
 
 byte degree[] = {   //custom character for degree celcius
   B11011,
@@ -41,7 +50,8 @@ float maxTemp, minTemp;
 float maxHum, minHum;
 int buttonPress = 0;    //button state
 
-void setup() {
+void setup() 
+{
   Serial.begin(9600);
   lcd.begin();
   lcd.backlight();
@@ -52,12 +62,19 @@ void setup() {
   pinMode(RELAY, OUTPUT); // RELAY is output
   digitalWrite(LED, LOW); // LED OFF at beginning
   digitalWrite(RELAY, LOW); // RELAY OFF at beginning
-
+  pinMode(BUTTON, INPUT_PULLUP); // BUTTON input
+  
   lcd.createChar(0, degree);
 }
 
+<<<<<<< HEAD
 void loop() {
   display();
+=======
+void loop() 
+{
+  buttonpressed();
+>>>>>>> 827fd510af2638f2db1aaa2f90ede74cdabcf64f
 }
 
 //gets and sets max and min values of DHT11 sensor
@@ -122,6 +139,7 @@ void LIGHT()
   }
 }
 
+<<<<<<< HEAD
 //screen to display max/min values out+in
 void disOutMax(){
   //DHT11 data
@@ -151,5 +169,29 @@ void display(){
   }else{  //displays max values
     //display max values
   }
+=======
+void buttonpressed()
+{
+  static int lastbuttonstate = HIGH;
+  int read = digitalRead(BUTTON);
+  if (read != lastbuttonstate)
+  {
+    delay(50);
+    if(read == LOW)
+    {
+      buttonpress = !buttonpress;
+      delay(200);
+    }
+  }
+  lastbuttonstate = read;
+>>>>>>> 827fd510af2638f2db1aaa2f90ede74cdabcf64f
 
+  if(buttonpress)
+  {
+    disDHT();
+  }
+  else
+  {
+    LIGHT();
+  }
 }
