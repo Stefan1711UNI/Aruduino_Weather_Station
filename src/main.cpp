@@ -1,9 +1,15 @@
+#include "DHT.h"
+#include "LCD_I2C.h"
+
+// KAMY
+#define LDR A0 // LDR at port A0
+int ldr;
+int LED = 13; // On-board LED at 13
+int RELAY = 2; // RELAY at port 2
+
 //STEFAN SONDERLING
 //DHT11 SENSOR WILL NOT WORK ON VSCODE AS THE LIBARY DOES NOT EXIST. PLUG BACK INTO ARDUINO IDE ENVIROMENT
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "DHT.h"
-#include "LCD_I2C.h"
 
 LCD_I2C lcd(0x27, 16, 2);
 
@@ -21,6 +27,11 @@ void setup() {
   lcd.backlight();
   lcd.clear();
   dht.begin();
+
+  pinMode(LED, OUTPUT); // LED is output
+  pinMode(RELAY, OUTPUT); // RELAY is output
+  digitalWrite(LED, LOW); // LED OFF at beginning
+  digitalWrite(RELAY, LOW); // RELAY OFF at beginning
 
 }
 
@@ -70,5 +81,19 @@ int readDHT(){
     maxTemp(insideTemp, hum);
     return 1;
   }
+}
 
+void LIGHT()
+{
+  ldr = analogRead(LDR); // Read temperature
+  if(ldr > 800) // If dark detected
+  {
+  digitalWrite(LED, HIGH); // LED ON
+  digitalWrite(RELAY, HIGH); // RELAY ON
+  }
+  else
+  {
+  digitalWrite(LED, LOW); // LED OFF
+  digitalWrite(RELAY, LOW); // RELAY OFF
+  }
 }
