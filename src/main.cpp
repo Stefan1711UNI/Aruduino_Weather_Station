@@ -12,16 +12,20 @@ void getMax(double insideTemp, double hum);
 void disDHT();
 void LIGHT();
 
+
 // KAMY
 #define LDR A0 // LDR at port A0
 int ldr;
 int LED = 13; // On-board LED at 13
 int RELAY = 2; // RELAY at port 2
+int PED = 0;//pedestrian button status
+int BUTTON = 3;
 
 LCD_I2C lcd(0x27, 16, 2);
 
 #define dhtPin 8  //DHT sensor on pin 2
-DHT dht(dhtPin, DHT11);    
+DHT dht(dhtPin, DHT11);
+bool buttonpress = true;    
 
 byte degree[] = {
   B11011,
@@ -39,7 +43,8 @@ float hum, insideTemp;
 float maxTemp, minTemp;
 float maxHum, minHum;
 
-void setup() {
+void setup() 
+{
   Serial.begin(9600);
   lcd.begin();
   lcd.backlight();
@@ -50,13 +55,14 @@ void setup() {
   pinMode(RELAY, OUTPUT); // RELAY is output
   digitalWrite(LED, LOW); // LED OFF at beginning
   digitalWrite(RELAY, LOW); // RELAY OFF at beginning
-
+  pinMode(BUTTON, INPUT_PULLUP); // BUTTON input
+  
   lcd.createChar(0, degree);
 }
 
-void loop() {
-  disDHT();
-  LIGHT();
+void loop() 
+{
+  buttonpressed();
 }
 
 void getMax(double insideTemp, double hum){
@@ -122,8 +128,27 @@ void LIGHT()
   }
 }
 
-void display(){
-  disDHT();
-  LIGHT();
+void buttonpressed()
+{
+  static int lastbuttonstate = HIGH;
+  int read = digitalRead(BUTTON);
+  if (read != lastbuttonstate)
+  {
+    delay(50);
+    if(read == LOW)
+    {
+      buttonpress = !buttonpress;
+      delay(200);
+    }
+  }
+  lastbuttonstate = read;
 
+  if(buttonpress)
+  {
+    disDHT();
+  }
+  else
+  {
+    LIGHT();
+  }
 }
