@@ -11,6 +11,7 @@ int readDHT();
 void getMax(double insideTemp, double hum);
 void disDHT();
 void LIGHT();
+void display();
 
 // KAMY
 #define LDR A0 // LDR at port A0
@@ -20,10 +21,10 @@ int RELAY = 2; // RELAY at port 2
 
 LCD_I2C lcd(0x27, 16, 2);
 
-#define dhtPin 8  //DHT sensor on pin 2
+#define dhtPin 8  //DHT sensor on pin 8
 DHT dht(dhtPin, DHT11);    
 
-byte degree[] = {
+byte degree[] = {   //custom character for degree celcius
   B11011,
   B11100,
   B00100,
@@ -38,6 +39,7 @@ byte degree[] = {
 float hum, insideTemp;
 float maxTemp, minTemp;
 float maxHum, minHum;
+int buttonPress = 0;    //button state
 
 void setup() {
   Serial.begin(9600);
@@ -55,10 +57,10 @@ void setup() {
 }
 
 void loop() {
-  disDHT();
-  LIGHT();
+  display();
 }
 
+//gets and sets max and min values of DHT11 sensor
 void getMax(double insideTemp, double hum){
   if(insideTemp>maxTemp){
     maxTemp = insideTemp;
@@ -72,19 +74,18 @@ void getMax(double insideTemp, double hum){
   }
 }
 
+//displays DHT11 sensor data
 void disDHT(){
   delay(2000);
-  if(readDHT()==1){
+  if(readDHT()==1){   //1 means sensor read correctly
     lcd.setCursor(0,0);
-    lcd.print("Temp=");
     lcd.print((int) round(insideTemp));
     lcd.write(0);
-    lcd.setCursor(0,1);
-    lcd.print("Hum=");
+    lcd.print(" ");
     lcd.print((int) round(hum));
     lcd.print("%");
     delay(5000);
-  }else{
+  }else{    //0 means sensor did not read correctly
     Serial.println("NOT read correctly");
     delay(3000);
   }
@@ -92,13 +93,12 @@ void disDHT(){
 
 //Reads the DHT11 sensor
 int readDHT(){
-  hum = dht.readHumidity();
+  hum = dht.readHumidity();   //rads data from sensor
   insideTemp = dht.readTemperature();
-
   if(isnan(hum) || isnan(insideTemp)){  //isnan checks if is not a number(error code for dht is not a number)
     return 0;
   }else {
-    getMax(insideTemp, hum);
+    getMax(insideTemp, hum);    //updates max/min values
     return 1;
   }
 }
@@ -117,13 +117,39 @@ void LIGHT()
   {
   digitalWrite(LED, LOW); // LED OFF
   digitalWrite(RELAY, LOW); // RELAY OFF
-  lcd.setCursor(12,0);
+  lcd.setCursor(13,0);
   lcd.print("Day");
   }
 }
 
+//screen to display max/min values out+in
+void disOutMax(){
+  //DHT11 data
+  lcd.setCursor(0,0);
+  lcd.print("Max: ");
+  lcd.print(maxTemp);
+  lcd.write(0); 
+  lcd.print(maxHum);
+  lcd.print("|");
+  lcd.setCursor(0,1);
+  lcd.print("Min: ");
+  lcd.print(minTemp);
+  lcd.write(0); 
+  lcd.print(minHum);
+  lcd.print("|");
+  //Other temp sensor
+  //code to display out max/min
+}
+
+//depending on button state different screens are displayed
 void display(){
-  disDHT();
-  LIGHT();
+  if(buttonPress == 0){   //displayes inside data
+    disDHT();
+  }else if(buttonPress == 1){   //displays outside data
+    LIGHT();
+    //also needs temps
+  }else{  //displays max values
+    //display max values
+  }
 
 }
