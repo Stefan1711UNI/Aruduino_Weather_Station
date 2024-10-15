@@ -12,6 +12,8 @@ DHT dht(dhtPin, DHT11);
 
 //global variable can be accessed anyware
 float hum, insideTemp;
+float maxTemp, minTemp;
+float maxHum, minHum;
 
 void setup() {
   Serial.begin(9600);
@@ -25,6 +27,19 @@ void setup() {
 void loop() {
   disDHT();
 
+}
+
+void getMax(double insideTemp, double hum){
+  if(insideTemp>maxTemp){
+    maxTemp = insideTemp;
+  }else if(insideTemp<minTemp){
+    minTemp = insideTemp;
+  }
+  if(hum>maxHum){
+    maxHum = hum;
+  }else if(hum<minHum){
+    minHum = hum;
+  }
 }
 
 void disDHT(){
@@ -52,6 +67,7 @@ int readDHT(){
   if(isnan(hum) || isnan(insideTemp)){  //isnan checks if is not a number(error code for dht is not a number)
     return 0;
   }else {
+    maxTemp(insideTemp, hum);
     return 1;
   }
 
