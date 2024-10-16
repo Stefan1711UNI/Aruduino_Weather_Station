@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#include "DHT.h"
-#include "LCD_I2C.h"
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
