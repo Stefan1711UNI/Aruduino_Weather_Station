@@ -10,13 +10,14 @@
 
 //functions
 int readDHT();
-void getMax(double insideTemp, double hum);
+void getMaxIns(double insideTemp, double hum);
 void disDHT();
 void LIGHT();
 void LM35read();
 void display();
 void buttonrequest();
 void isRefreshed();
+void getMaxOut(double insideTemp);
 //void buttonpressed();
 
 
@@ -47,8 +48,9 @@ byte degree[] = {   //custom character for degree celcius
 };
 
 //global variable can be accessed anyware
-int hum, insideTemp;
-int maxTemp, minTemp;
+int hum, insideTemp, outsideTemp;
+int maxTempOut, minTempOut;
+int maxTempIns, minTempIns;
 int maxHum, minHum;
 int buttonstate = 0;  //button state   
 bool refershed = false;
@@ -78,7 +80,7 @@ void setup()
 
   lcd.createChar(0, degree);
 
-  attachInterrupt(digitalPinToInterrupt(BUTTON), buttonrequest, CHANGE);//interupt routine
+  attachInterrupt(digitalPinToInterrupt(BUTTON), buttonrequest, FALLING);//interupt routine
 }
 
 void loop() {
@@ -86,16 +88,25 @@ void loop() {
 }
 
 //gets and sets max and min values of DHT11 sensor
-void getMax(double insideTemp, double hum){
-  if(insideTemp>maxTemp){
-    maxTemp = insideTemp;
-  }else if(insideTemp<minTemp){
-    minTemp = insideTemp;
+void getMaxIns(double insideTemp, double hum){
+  if(insideTemp>maxTempIns){
+    maxTempIns = insideTemp;
+  }else if(insideTemp<minTempIns){
+    minTempIns = insideTemp;
   }
   if(hum>maxHum){
     maxHum = hum;
   }else if(hum<minHum){
     minHum = hum;
+  }
+}
+
+//gets and sets max and min values of DHT11 sensor
+void getMaxOut(double insideTemp){
+  if(insideTemp>maxTempIns){
+    maxTempIns = insideTemp;
+  }else if(insideTemp<minTempIns){
+    minTempIns = insideTemp;
   }
 }
 
@@ -123,7 +134,7 @@ int readDHT(){
   if(isnan(hum) || isnan(insideTemp)){  //isnan checks if is not a number(error code for dht is not a number)
     return 0;
   }else {
-    getMax(insideTemp, hum);    //updates max/min values
+    getMaxIns(insideTemp, hum);    //updates max/min values
     return 1;
   }
 }
@@ -152,18 +163,25 @@ void disOutMax(){
   //DHT11 data
   lcd.setCursor(0,0);
   lcd.print("Max: ");
-  lcd.print(maxTemp);
+  lcd.print(maxTempIns);
   lcd.write(0); 
   lcd.print(maxHum);
   lcd.print("|");
+  //LM35 data
+  lcd.print("Max: ");
+  lcd.print(maxTempIns);
+  lcd.write(0); 
+  //DHT11 data
   lcd.setCursor(0,1);
   lcd.print("Min: ");
-  lcd.print(minTemp);
+  lcd.print(minTempIns);
   lcd.write(0); 
   lcd.print(minHum);
   lcd.print("|");
-  //Other temp sensor
-  //code to display out max/min
+  //LM35 data
+  lcd.print("Min: ");
+  lcd.print(minTempIns);
+  lcd.write(0); 
 }
 
 void buttonrequest()
@@ -182,38 +200,13 @@ void buttonrequest()
     
   // prevTime = millis();
   // }
-  // buttonstate++;
-  // refershed = false;
-  // if(buttonstate >= 3)
-  // {
-  //   buttonstate = 0;
-  // }
 
-
-  bool currentButtonState = digitalRead(3) == LOW; // Button pressed is LOW
-
-  if (currentButtonState && !lastButtonState) {
-    // Button press detected
-    pressTime = millis();
-  } else if (!currentButtonState && lastButtonState) {
-    // Button release detected
-    releasedTime = millis();
-    heldTime = releasedTime - pressTime;
-
-    if (heldTime > 3000) {
-      longPress = true;
-      // Action for long press here
-    } else {
-      // Action for short press here
-      buttonStateCounter++;
-      if (buttonStateCounter >= 3) {
-        buttonStateCounter = 0; // Reset after 3 presses
-      }
-    }
+  buttonstate++;
+  refershed = false;
+  if(buttonstate >= 3)
+  {
+    buttonstate = 0;
   }
-
-  // Reset flags for the next loop
-  lastButtonState = currentButtonState;
   
 }
 
@@ -225,36 +218,36 @@ void display(){
   }else if(buttonstate == 1){   //displays outside data
     isRefreshed();
     LIGHT();
+    LM35read();
     //also needs temps
   }else{  //displays max values
     isRefreshed();
     disOutMax();
   }
-  if(longPress = true){
-    isRefreshed();
-    lcd.setCursor(0,0);
-    lcd.print("LONG PRESSS");
-    longPress = false;
-  }
+  // if(longPress = true){
+  //   isRefreshed();
+  //   lcd.setCursor(0,0);
+  //   lcd.print("LONG PRESSS");
+  //   longPress = false;
+  // }
 }
 
 void LM35read() 
 {
   // read the input on analog pin 0:
-  float temperature = analogRead(TEMP);
+  outsideTemp = analogRead(TEMP);
 
   //Calculate Temperature from TEMP value
   //Note that we use mV for Vref
   //Vin = TEMPresult*Vref/(2^10)
   //Temp(C) = Vin/(10) = TEMPresult*Vref/(1024*10)
-  temperature = temperature*1100/(1023*10);
-  Serial.println("Temperature : ");
-  Serial.println(temperature);
+  outsideTemp = outsideTemp*1100/(1023*10);
   lcd.setCursor(0,0);
   lcd.print("Outside:");
-  lcd.print(temperature);
+  lcd.print(outsideTemp);
   lcd.print((char)223);
-  lcd.print("C");
+  lcd.write(0);
+  getMaxOut(outsideTemp);
   delay(1500);
 }
 
