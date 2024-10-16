@@ -45,6 +45,94 @@ byte degree[] = {   //custom character for degree celcius
   B00000,
   B00000
 };
+byte sun1[] =
+{
+  B00000,
+  B01010,
+  B00000,
+  B10011,
+  B00010,
+  B00100,
+  B10100,
+  B00100,
+};
+byte sun2[] =
+{
+  B00000,
+  B01010,
+  B00000,
+  B11001,
+  B01000,
+  B00100,
+  B00101,
+  B00100,
+};
+byte sun3[] =
+{
+  B00100,
+  B10100,
+  B00100,
+  B00010,
+  B10011,
+  B00000,
+  B01010,
+  B00000,
+};
+byte sun4[] =
+{
+  B00100,
+  B00101,
+  B00100,
+  B01000,
+  B11001,
+  B00000,
+  B01010,
+  B00000,
+};
+byte moon1[] =
+{
+  B00000,
+  B00000,
+  B00011,
+  B00100,
+  B00111,
+  B00100,
+  B00000,
+  B00000,
+};
+byte moon2[] =
+{
+  B00000,
+  B00000,
+  B11000,
+  B00100,
+  B10010,
+  B01001,
+  B00101,
+  B00101,
+};
+byte moon3[] =
+{
+  B00000,
+  B00000,
+  B00100,
+  B00111,
+  B00100,
+  B00011,
+  B00000,
+  B00000,
+};
+byte moon4[] =
+{
+  B00101,
+  B00101,
+  B01001,
+  B10010,
+  B00100,
+  B11000,
+  B00000,
+  B00000,
+};
 
 //global variable can be accessed anyware
 int hum, insideTemp;
@@ -71,6 +159,16 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(BUTTON), buttonrequest, FALLING);//interupt routine
   
   lcd.createChar(0, degree);
+
+  lcd.createChar(1, sun1);
+  lcd.createChar(2, sun2);
+  lcd.createChar(3, sun3);
+  lcd.createChar(4, sun4);
+
+  lcd.createChar(5, moon1);
+  lcd.createChar(6, moon2);
+  lcd.createChar(7, moon3);
+  lcd.createChar(8, moon4);
 }
 
 void loop() {
@@ -127,15 +225,26 @@ void LIGHT()
   {
   digitalWrite(LED, HIGH); // LED ON
   digitalWrite(RELAY, HIGH); // RELAY ON
-  lcd.setCursor(12,0);
-  lcd.print("Night");
+  lcd.setCursor(10,0);
+  lcd.write(5);
+  lcd.write(6);
+
+  lcd.setCursor(10, 1);
+  lcd.write(7);
+  lcd.write(8);
+
   }
   else
   {
   digitalWrite(LED, LOW); // LED OFF
   digitalWrite(RELAY, LOW); // RELAY OFF
-  lcd.setCursor(13,0);
-  lcd.print("Day");
+  lcd.setCursor(10, 0);
+  lcd.write(1);
+  lcd.write(2);
+
+  lcd.setCursor(10, 1);
+  lcd.write(3);
+  lcd.write(4);
   }
 }
 
@@ -168,20 +277,12 @@ void buttonrequest()
   {
     buttonstate = 0;
   }
-  buttonStatus2 = digitalRead(BUTTON);
-
-
-   static uint32_t previous = millis();
 
 }
 
 // depending on button state different screens are displayed
 void display()
 {
-    buttonStatus2 = digitalRead(BUTTON);
-
-
-   static uint32_t previous = millis();
 
   if(buttonstate == 0){   //displayes inside data
     isRefreshed();
