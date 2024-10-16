@@ -13,6 +13,7 @@ void disDHT();
 void LIGHT();
 void display();
 void buttonrequest();
+void isRefreshed();
 //void buttonpressed();
 
 
@@ -42,11 +43,11 @@ byte degree[] = {   //custom character for degree celcius
 };
 
 //global variable can be accessed anyware
-float hum, insideTemp;
-float maxTemp, minTemp;
-float maxHum, minHum;
-int buttonstate = 0;
-//int buttonPress = 0;    //button state
+int hum, insideTemp;
+int maxTemp, minTemp;
+int maxHum, minHum;
+int buttonstate = 0;  //button state   
+bool refershed = false;
 
 void setup() 
 {
@@ -68,7 +69,6 @@ void setup()
 
 void loop() {
   display();
-  //buttonpressed();
 }
 
 //gets and sets max and min values of DHT11 sensor
@@ -90,10 +90,10 @@ void disDHT(){
   delay(2000);
   if(readDHT()==1){   //1 means sensor read correctly
     lcd.setCursor(0,0);
-    lcd.print((int) round(insideTemp));
+    lcd.print(insideTemp);
     lcd.write(0);
     lcd.print(" ");
-    lcd.print((int) round(hum));
+    lcd.print(hum);
     lcd.print("%");
     delay(5000);
   }else{    //0 means sensor did not read correctly
@@ -104,8 +104,8 @@ void disDHT(){
 
 //Reads the DHT11 sensor
 int readDHT(){
-  hum = dht.readHumidity();   //rads data from sensor
-  insideTemp = dht.readTemperature();
+  hum = (int) round(dht.readHumidity());   //rads data from sensor
+  insideTemp = (int) round(dht.readTemperature());
   if(isnan(hum) || isnan(insideTemp)){  //isnan checks if is not a number(error code for dht is not a number)
     return 0;
   }else {
@@ -151,10 +151,12 @@ void disOutMax(){
   //Other temp sensor
   //code to display out max/min
 }
+
 void buttonrequest()
 {
   buttonstate++;
-  if(buttonstate >= 2)
+  refershed = false;
+  if(buttonstate >= 3)
   {
     buttonstate = 0;
   }
@@ -163,12 +165,22 @@ void buttonrequest()
 // depending on button state different screens are displayed
 void display(){
   if(buttonstate == 0){   //displayes inside data
+    isRefreshed();
     disDHT();
   }else if(buttonstate == 1){   //displays outside data
+    isRefreshed();
     LIGHT();
     //also needs temps
   }else{  //displays max values
-    //display max values
+    isRefreshed();
+    disOutMax();
+  }
+}
+
+void isRefreshed(){
+  if(refershed == false){
+    lcd.clear();
+    refershed = true;
   }
 }
 
