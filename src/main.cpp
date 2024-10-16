@@ -154,7 +154,7 @@ void disOutMax(){
 void buttonrequest()
 {
   buttonstate++;
-  if(buttonstate >= 2)
+  if(buttonstate >= 3)
   {
     buttonstate = 0;
   }
@@ -168,7 +168,7 @@ void display(){
     LIGHT();
     //also needs temps
   }else{  //displays max values
-    //display max values
+    disOutMax();
   }
 }
 
