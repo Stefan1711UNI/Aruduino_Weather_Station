@@ -273,10 +273,10 @@ void disMax(){
   lcd.print(maxTempIns);
   lcd.print((char)223); 
   lcd.print(maxHum);
-  lcd.print("%");
-  lcd.print("|");
+  lcd.print("%|");
   //LM35 data
-  lcd.print(maxTempIns);
+  lcd.setCursor(10,0);
+  lcd.print(maxTempOut);
   lcd.print((char)223); 
   //DHT11 data
   lcd.setCursor(0,1);
@@ -284,11 +284,19 @@ void disMax(){
   lcd.print(minTempIns);
   lcd.print((char)223); 
   lcd.print(minHum);
-  lcd.print("%");
-  lcd.print("|");
+  lcd.print("%|");
   //LM35 data
-  lcd.print(minTempIns);
+  lcd.setCursor(10,1);
+  lcd.print(minTempOut);
   lcd.print((char)223); 
+
+  // Debugging output for Serial monitor
+  Serial.print("Max Inside Temp: "); Serial.println(maxTempIns);
+  Serial.print("Min Inside Temp: "); Serial.println(minTempIns);
+  Serial.print("Max Humidity: "); Serial.println(maxHum);
+  Serial.print("Min Humidity: "); Serial.println(minHum);
+  Serial.print("Max Outside Temp: "); Serial.println(maxTempOut);
+  Serial.print("Min Outside Temp: "); Serial.println(minTempOut);
 }
 
 // depending on button state different screens are displayed
