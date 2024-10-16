@@ -141,6 +141,13 @@ int maxHum, minHum;
 int buttonstate = 0;  //button state   
 bool refershed = false;
 
+//variables to check if button is long pressed
+int prevTime, pressedTime, releasedTime, heldTime;
+bool longPress= false;
+bool lastButtonState = false;
+int buttonStateCounter = 0;
+long pressTime = 0;
+
 void setup() 
 {
   Serial.begin(9600);
@@ -156,8 +163,7 @@ void setup()
   digitalWrite(LED, LOW); // LED OFF at beginning
   digitalWrite(RELAY, LOW); // RELAY OFF at beginning
   pinMode(BUTTON, INPUT_PULLUP); // BUTTON input
-  attachInterrupt(digitalPinToInterrupt(BUTTON), buttonrequest, FALLING);//interupt routine
-  
+
   lcd.createChar(0, degree);
 
   lcd.createChar(1, sun1);
@@ -294,6 +300,12 @@ void display()
   }else{  //displays max values
     isRefreshed();
     disOutMax();
+  }
+  if(longPress = true){
+    isRefreshed();
+    lcd.setCursor(0,0);
+    lcd.print("LONG PRESSS");
+    longPress = false;
   }
 }
 
