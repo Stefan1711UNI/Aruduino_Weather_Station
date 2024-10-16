@@ -12,6 +12,8 @@ void getMax(double insideTemp, double hum);
 void disDHT();
 void LIGHT();
 void display();
+void buttonrequest();
+//void buttonpressed();
 
 
 // KAMY
@@ -43,7 +45,8 @@ byte degree[] = {   //custom character for degree celcius
 float hum, insideTemp;
 float maxTemp, minTemp;
 float maxHum, minHum;
-int buttonPress = 0;    //button state
+int buttonstate = 0;
+//int buttonPress = 0;    //button state
 
 void setup() 
 {
@@ -58,12 +61,14 @@ void setup()
   digitalWrite(LED, LOW); // LED OFF at beginning
   digitalWrite(RELAY, LOW); // RELAY OFF at beginning
   pinMode(BUTTON, INPUT_PULLUP); // BUTTON input
+  attachInterrupt(digitalPinToInterrupt(BUTTON), buttonrequest, FALLING);//interupt routine
   
   lcd.createChar(0, degree);
 }
 
 void loop() {
   display();
+  //buttonpressed();
 }
 
 //gets and sets max and min values of DHT11 sensor
@@ -146,12 +151,20 @@ void disOutMax(){
   //Other temp sensor
   //code to display out max/min
 }
+void buttonrequest()
+{
+  buttonstate++;
+  if(buttonstate >= 2)
+  {
+    buttonstate = 0;
+  }
+}
 
-//depending on button state different screens are displayed
+// depending on button state different screens are displayed
 void display(){
-  if(buttonPress == 0){   //displayes inside data
+  if(buttonstate == 0){   //displayes inside data
     disDHT();
-  }else if(buttonPress == 1){   //displays outside data
+  }else if(buttonstate == 1){   //displays outside data
     LIGHT();
     //also needs temps
   }else{  //displays max values
@@ -160,27 +173,27 @@ void display(){
 }
 
 //button code
-void buttonpressed()
-{
-  static int lastbuttonstate = HIGH;
-  int read = digitalRead(BUTTON);
-  if (read != lastbuttonstate)
-  {
-    delay(50);
-    if(read == LOW)
-    {
-      buttonpress = !buttonpress;
-      delay(200);
-    }
-  }
-  lastbuttonstate = read;
+// void buttonpressed()
+// {
+//   static int lastbuttonstate = HIGH;
+//   int read = digitalRead(BUTTON);
+//   if (read != lastbuttonstate)
+//   {
+//     delay(50);
+//     if(read == LOW)
+//     {
+//       buttonpress = !buttonpress;
+//       delay(200);
+//     }
+//   }
+//   lastbuttonstate = read;
 
-  if(buttonpress)
-  {
-    disDHT();
-  }
-  else
-  {
-    LIGHT();
-  }
-}
+//   if(buttonpress)
+//   {
+//     disDHT();
+//   }
+//   else
+//   {
+//     LIGHT();
+//   }
+// }
