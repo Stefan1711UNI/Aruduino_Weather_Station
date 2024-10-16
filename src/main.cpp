@@ -49,6 +49,13 @@ int maxHum, minHum;
 int buttonstate = 0;  //button state   
 bool refershed = false;
 
+//variables to check if button is long pressed
+int prevTime, pressedTime, releasedTime, heldTime;
+bool longPress= false;
+bool lastButtonState = false;
+int buttonStateCounter = 0;
+long pressTime = 0;
+
 void setup() 
 {
   Serial.begin(9600);
@@ -62,9 +69,10 @@ void setup()
   digitalWrite(LED, LOW); // LED OFF at beginning
   digitalWrite(RELAY, LOW); // RELAY OFF at beginning
   pinMode(BUTTON, INPUT_PULLUP); // BUTTON input
-  attachInterrupt(digitalPinToInterrupt(BUTTON), buttonrequest, FALLING);//interupt routine
-  
+
   lcd.createChar(0, degree);
+
+  attachInterrupt(digitalPinToInterrupt(BUTTON), buttonrequest, CHANGE);//interupt routine
 }
 
 void loop() {
@@ -154,12 +162,53 @@ void disOutMax(){
 
 void buttonrequest()
 {
-  buttonstate++;
-  refershed = false;
-  if(buttonstate >= 3)
-  {
-    buttonstate = 0;
+  // if(pressTime + 100 < millis()){
+  //   if(digitalRead(3) == LOW){
+  //     pressedTime = millis();
+  //   }else{
+  //     releasedTime =millis();
+  //     heldTime = releasedTime - pressedTime;
+  //     if(heldTime > 3000){
+  //       longPress = true;
+  //       refershed = false;
+  //     }
+  //   }
+    
+  // prevTime = millis();
+  // }
+  // buttonstate++;
+  // refershed = false;
+  // if(buttonstate >= 3)
+  // {
+  //   buttonstate = 0;
+  // }
+
+
+  bool currentButtonState = digitalRead(3) == LOW; // Button pressed is LOW
+
+  if (currentButtonState && !lastButtonState) {
+    // Button press detected
+    pressTime = millis();
+  } else if (!currentButtonState && lastButtonState) {
+    // Button release detected
+    releasedTime = millis();
+    heldTime = releasedTime - pressTime;
+
+    if (heldTime > 3000) {
+      longPress = true;
+      // Action for long press here
+    } else {
+      // Action for short press here
+      buttonStateCounter++;
+      if (buttonStateCounter >= 3) {
+        buttonStateCounter = 0; // Reset after 3 presses
+      }
+    }
   }
+
+  // Reset flags for the next loop
+  lastButtonState = currentButtonState;
+  
 }
 
 // depending on button state different screens are displayed
@@ -174,6 +223,12 @@ void display(){
   }else{  //displays max values
     isRefreshed();
     disOutMax();
+  }
+  if(longPress = true){
+    isRefreshed();
+    lcd.setCursor(0,0);
+    lcd.print("LONG PRESSS");
+    longPress = false;
   }
 }
 
