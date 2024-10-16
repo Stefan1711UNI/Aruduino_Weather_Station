@@ -5,16 +5,20 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include <LCD_I2C.h>
+#include <Wire.h>
+#define TEMP A1
 
 //functions
 int readDHT();
 void getMax(double insideTemp, double hum);
 void disDHT();
 void LIGHT();
+void LM35read();
 void display();
 void buttonrequest();
 void isRefreshed();
 //void buttonpressed();
+
 
 
 // KAMY
@@ -46,8 +50,7 @@ byte degree[] = {   //custom character for degree celcius
 int hum, insideTemp;
 int maxTemp, minTemp;
 int maxHum, minHum;
-int buttonstate = 0;  //button state 
-int buttonStatus2 = 0;  
+int buttonstate = 0;  //button state   
 bool refershed = false;
 
 void setup() 
@@ -57,6 +60,8 @@ void setup()
   lcd.backlight();
   lcd.clear();
   dht.begin();
+    //Switch to Internal 1.1V Reference
+  analogReference(AR_INTERNAL);
 
   pinMode(LED, OUTPUT); // LED is output
   pinMode(RELAY, OUTPUT); // RELAY is output
@@ -185,17 +190,30 @@ void display()
     isRefreshed();
     LIGHT();
     //also needs temps
-  }else if (buttonStatus2 == HIGH ) 
-  {
-    if (millis() - previous > 2000)
-     //switches on the LED after 2 second press and hold
+  }else{  //displays max values
     isRefreshed();
     disOutMax();
   }
-  else 
-  {
-    previous = millis();
-  }
+}
+
+void LM35read() 
+{
+  // read the input on analog pin 0:
+  float temperature = analogRead(TEMP);
+
+  //Calculate Temperature from TEMP value
+  //Note that we use mV for Vref
+  //Vin = TEMPresult*Vref/(2^10)
+  //Temp(C) = Vin/(10) = TEMPresult*Vref/(1024*10)
+  temperature = temperature*1100/(1023*10);
+  Serial.println("Temperature : ");
+  Serial.println(temperature);
+  lcd.setCursor(0,0);
+  lcd.print("Outside:");
+  lcd.print(temperature);
+  lcd.print((char)223);
+  lcd.print("C");
+  delay(1500);
 }
 
 void isRefreshed(){
@@ -204,4 +222,30 @@ void isRefreshed(){
     refershed = true;
   }
 }
+
+//button code
+// void buttonpressed()
+// {
+//   static int lastbuttonstate = HIGH;
+//   int read = digitalRead(BUTTON);
+//   if (read != lastbuttonstate)
+//   {
+//     delay(50);
+//     if(read == LOW)
+//     {
+//       buttonpress = !buttonpress;
+//       delay(200);
+//     }
+//   }
+//   lastbuttonstate = read;
+
+//   if(buttonpress)
+//   {
+//     disDHT();
+//   }
+//   else
+//   {
+//     LIGHT();
+//   }
+// }
 
