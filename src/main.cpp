@@ -232,7 +232,7 @@ void LIGHT()
   digitalWrite(LED, HIGH); // LED ON
   digitalWrite(RELAY, HIGH); // RELAY ON
   lcd.setCursor(10,0);
-  lcd.write(5);
+  lcd.write(5); //moon
   lcd.write(6);
 
   lcd.setCursor(10, 1);
@@ -245,7 +245,7 @@ void LIGHT()
   digitalWrite(LED, LOW); // LED OFF
   digitalWrite(RELAY, LOW); // RELAY OFF
   lcd.setCursor(10, 0);
-  lcd.write(1);
+  lcd.write(1);// sun
   lcd.write(2);
 
   lcd.setCursor(10, 1);
