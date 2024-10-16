@@ -28,9 +28,7 @@ void checkLongPress();
 //LDR
 #define LDR A0 // LDR at port A0
 int ldr;
-int LED = 13; // On-board LED at 13
 int RELAY = 2; // RELAY at port 2
-int PED = 0;//pedestrian button status
 int BUTTON = 3;
 //LCD
 LCD_I2C lcd(0x27, 16, 2);
@@ -154,9 +152,7 @@ void setup()
   analogReference(AR_INTERNAL);
 
   //LDR
-  pinMode(LED, OUTPUT); // LED is output
   pinMode(RELAY, OUTPUT); // RELAY is output
-  digitalWrite(LED, LOW); // LED OFF at beginning
   digitalWrite(RELAY, LOW); // RELAY OFF at beginning
   pinMode(BUTTON, INPUT_PULLUP); // BUTTON input
 
@@ -243,9 +239,10 @@ int readDHT(){
 void LIGHT()
 {
   ldr = analogRead(LDR); // Read temperature
+  Serial.print("ldr value:\n");
+  Serial.println(ldr);
   if(ldr > 800) // If dark detected
   {
-    digitalWrite(LED, HIGH); // LED ON
     digitalWrite(RELAY, HIGH); // RELAY ON
     lcd.setCursor(13,0);
     lcd.write(0);// sun
@@ -256,7 +253,6 @@ void LIGHT()
   }
   else
   {
-    digitalWrite(LED, LOW); // LED OFF
     digitalWrite(RELAY, LOW); // RELAY OFF
     lcd.setCursor(13, 0);
     lcd.write(4); //moon
@@ -303,6 +299,7 @@ void display()
     resetMax();
   }else if(buttonCounter == 0){   //displayes inside data
     isRefreshed();
+    LIGHT();
     disDHT();
   }else if(buttonCounter == 1){   //displays outside data
     isRefreshed();
