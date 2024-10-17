@@ -287,14 +287,6 @@ void disMax(){
   //LM35 data
   lcd.print(minTempOut, 1);
   lcd.print((char)223); 
-
-  /* Debugging output for Serial monitor
-  Serial.print("Max Inside Temp: "); Serial.println(maxTempIns);
-  Serial.print("Min Inside Temp: "); Serial.println(minTempIns);
-  Serial.print("Max Humidity: "); Serial.println(maxHum);
-  Serial.print("Min Humidity: "); Serial.println(minHum);
-  Serial.print("Max Outside Temp: "); Serial.println(maxTempOut);
-  Serial.print("Min Outside Temp: "); Serial.println(minTempOut);*/
 }
 
 // depending on button state different screens are displayed
@@ -351,7 +343,6 @@ void buttonInterruptHandler() {
     releasedTime = millis();
     checkLongPress();
     incrementCounterOnPress();
-    
   }
 }
 
