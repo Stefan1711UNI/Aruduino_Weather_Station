@@ -209,7 +209,7 @@ void disDHT(){
   if(readDHT()==1){   //1 means sensor read correctly
     lcd.setCursor(0,0);
     lcd.print("Inside:");
-    lcd.print(insideTemp);
+    lcd.print(insideTemp, 1);
     lcd.print((char)223);
     lcd.setCursor(0,1);
     lcd.print(hum);
@@ -223,8 +223,8 @@ void disDHT(){
 
 //Reads the DHT11 sensor
 int readDHT(){
-  hum = (int) round(dht.readHumidity());   //rads data from sensor
-  insideTemp = (int) round(dht.readTemperature());
+  hum = dht.readHumidity();   //rads data from sensor
+  insideTemp = dht.readTemperature();
   if(isnan(hum) || isnan(insideTemp)){  //isnan checks if is not a number(error code for dht is not a number)
     return 0;
   }else {
@@ -266,33 +266,33 @@ void disMax(){
   //DHT11 data
   lcd.setCursor(0,0);
   lcd.print("Max:");
-  lcd.print(maxTempIns);
+  lcd.print(maxTempIns, 1);
   lcd.print((char)223); 
   lcd.print(maxHum);
   lcd.print("%|");
   //LM35 data
   lcd.setCursor(10,0);
-  lcd.print(maxTempOut);
+  lcd.print(maxTempOut, 1);
   lcd.print((char)223); 
   //DHT11 data
   lcd.setCursor(0,1);
   lcd.print("Min:");
-  lcd.print(minTempIns);
+  lcd.print(minTempIns, 1);
   lcd.print((char)223); 
   lcd.print(minHum);
   lcd.print("%|");
   //LM35 data
   lcd.setCursor(10,1);
-  lcd.print(minTempOut);
+  lcd.print(minTempOut, 1);
   lcd.print((char)223); 
 
-  // Debugging output for Serial monitor
+  /* Debugging output for Serial monitor
   Serial.print("Max Inside Temp: "); Serial.println(maxTempIns);
   Serial.print("Min Inside Temp: "); Serial.println(minTempIns);
   Serial.print("Max Humidity: "); Serial.println(maxHum);
   Serial.print("Min Humidity: "); Serial.println(minHum);
   Serial.print("Max Outside Temp: "); Serial.println(maxTempOut);
-  Serial.print("Min Outside Temp: "); Serial.println(minTempOut);
+  Serial.print("Min Outside Temp: "); Serial.println(minTempOut);*/
 }
 
 // depending on button state different screens are displayed
@@ -325,10 +325,10 @@ void LM35read()
   //Note that we use mV for Vref
   //Vin = TEMPresult*Vref/(2^10)
   //Temp(C) = Vin/(10) = TEMPresult*Vref/(1200*10) + 2 
-  outsideTemp = outsideTemp*1100/(1200*10) + 2;
+  outsideTemp = outsideTemp*1100/(1200*10.0) + 2.0;
   lcd.setCursor(0,0);
-  lcd.print("Out:");
-  lcd.print(outsideTemp);
+  lcd.print("Outside:");
+  lcd.print(outsideTemp, 1);
   lcd.print((char)223);
   lcd.print("C");
   getMaxOut(outsideTemp);
