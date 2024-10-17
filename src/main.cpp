@@ -6,6 +6,29 @@
 #include <Wire.h>
 
 #define TEMP A1 //LM35 pin
+#define dhtPin 8  //DHT sensor on pin 8
+#define LDR A0 // LDR at port A0
+int ldr;
+int RELAY = 2; // RELAY at port 2
+int BUTTON = 3;
+//LCD
+LCD_I2C lcd(0x27, 16, 2);
+DHT dht(dhtPin, DHT22);    
+//global variable
+bool buttonpress = true;
+int hum, insideTemp, outsideTemp;
+int maxTempOut, minTempOut, maxTempIns, minTempIns;
+int maxHum, minHum;
+int buttonstate = 0;  //button state   
+//if screen has been cleared
+bool refershed = false;
+
+//For button to determin if held
+const int buttonPin = 3;    // Pin number for the button
+int buttonCounter = 0;      // Global variable to track button presses
+bool isLongPressed = false; // Global variable to track long press
+unsigned long pressedTime = 0;  // Time when the button was pressed
+unsigned long releasedTime = 0; // Time when the button was released  
 
 //functions
 int readDHT();
@@ -20,20 +43,7 @@ void getMaxOut(double insideTemp);
 void buttonInterruptHandler();
 void incrementCounterOnPress();
 void checkLongPress();
-
-
-
-//LDR
-#define LDR A0 // LDR at port A0
-int ldr;
-int RELAY = 2; // RELAY at port 2
-int BUTTON = 3;
-//LCD
-LCD_I2C lcd(0x27, 16, 2);
-//DHT11
-#define dhtPin 8  //DHT sensor on pin 8
-DHT dht(dhtPin, DHT11);    
-bool buttonpress = true;    
+  
 
 byte sun1[] =
 {
@@ -124,20 +134,6 @@ byte moon4[] =
   B00000,
 };
 
-//global variable
-int hum, insideTemp, outsideTemp;
-int maxTempOut, minTempOut, maxTempIns, minTempIns;
-int maxHum, minHum;
-int buttonstate = 0;  //button state   
-//if screen has been cleared
-bool refershed = false;
-
-//For button to determin if held
-const int buttonPin = 3;    // Pin number for the button
-int buttonCounter = 0;      // Global variable to track button presses
-bool isLongPressed = false; // Global variable to track long press
-unsigned long pressedTime = 0;  // Time when the button was pressed
-unsigned long releasedTime = 0; // Time when the button was released
 
 void setup() 
 {
@@ -165,6 +161,7 @@ void setup()
   lcd.createChar(7, moon4);
   //button
   attachInterrupt(digitalPinToInterrupt(buttonPin), buttonInterruptHandler, CHANGE);
+  delay(3000);
 }
 
 void loop() {
