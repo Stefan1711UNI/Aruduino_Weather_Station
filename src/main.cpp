@@ -34,7 +34,7 @@ int BUTTON = 3;
 LCD_I2C lcd(0x27, 16, 2);
 //DHT11
 #define dhtPin 8  //DHT sensor on pin 8
-DHT dht(dhtPin, DHT11);    
+DHT dht(dhtPin, DHT22);    
 bool buttonpress = true;    
 
 byte sun1[] =
@@ -127,9 +127,13 @@ byte moon4[] =
 };
 
 //global variable
-int hum, insideTemp, outsideTemp;
-int maxTempOut, minTempOut, maxTempIns, minTempIns;
-int maxHum, minHum;
+int hum; 
+float insideTemp, outsideTemp;
+int maxTempOut, maxTempIns;
+int minTempOut = 100;
+int minTempIns = 100;
+int minHum = 100;
+int maxHum;
 int buttonstate = 0;  //button state   
 //if screen has been cleared
 bool refershed = false;
@@ -169,6 +173,7 @@ void setup()
   lcd.createChar(7, moon4);
   //button
   attachInterrupt(digitalPinToInterrupt(buttonPin), buttonInterruptHandler, CHANGE);
+  delay(3000);
 }
 
 void loop() {
@@ -201,11 +206,11 @@ void getMaxOut(double outsideTemp){
 //Resets max and min values
 void resetMax(){
   maxTempIns = 0;
-  minTempIns = 0;
+  minTempIns = 100;
   maxHum = 0;
-  minHum = 0;
+  minHum = 100;
   maxTempOut = 0;
-  minTempOut = 0;
+  minTempOut = 100;
 }
 
 //displays DHT11 sensor data
@@ -228,7 +233,7 @@ void disDHT(){
 //Reads the DHT11 sensor
 int readDHT(){
   hum = (int) round(dht.readHumidity());   //rads data from sensor
-  insideTemp = (int) round(dht.readTemperature());
+  insideTemp =  dht.readTemperature() ;
   if(isnan(hum) || isnan(insideTemp)){  //isnan checks if is not a number(error code for dht is not a number)
     return 0;
   }else {
@@ -275,7 +280,7 @@ void disMax(){
   lcd.print(maxHum);
   lcd.print("%|");
   //LM35 data
-  lcd.setCursor(10,0);
+  // lcd.setCursor(10,0);
   lcd.print(maxTempOut);
   lcd.print((char)223); 
   //DHT11 data
@@ -286,17 +291,8 @@ void disMax(){
   lcd.print(minHum);
   lcd.print("%|");
   //LM35 data
-  lcd.setCursor(10,1);
   lcd.print(minTempOut);
   lcd.print((char)223); 
-
-  // Debugging output for Serial monitor
-  Serial.print("Max Inside Temp: "); Serial.println(maxTempIns);
-  Serial.print("Min Inside Temp: "); Serial.println(minTempIns);
-  Serial.print("Max Humidity: "); Serial.println(maxHum);
-  Serial.print("Min Humidity: "); Serial.println(minHum);
-  Serial.print("Max Outside Temp: "); Serial.println(maxTempOut);
-  Serial.print("Min Outside Temp: "); Serial.println(minTempOut);
 }
 
 // depending on button state different screens are displayed
