@@ -37,13 +37,13 @@ unsigned long releasedTime = 0; // Time when the button was released
 
 //functions
 int readDHT();
-void getMaxIns(double insideTemp, double hum);
+void getMaxIns(float insideTemp, double hum);
 void disDHT();
 void LIGHT();
 void LM35read();
 void display();
 void isRefreshed();
-void getMaxOut(double insideTemp);
+void getMaxOut(float insideTemp);
 //button functions
 void buttonInterruptHandler();
 void incrementCounterOnPress();
@@ -176,7 +176,7 @@ void loop() {
 }
 
 //gets and sets max and min values of DHT11 sensor
-void getMaxIns(double insideTemp, double hum){
+void getMaxIns(float insideTemp, double hum){
   if(insideTemp>maxTempIns){
     maxTempIns = insideTemp;
   }else if(insideTemp<minTempIns){
@@ -190,7 +190,7 @@ void getMaxIns(double insideTemp, double hum){
 }
 
 //gets and sets max and min values of LM35 sensor
-void getMaxOut(double outsideTemp){
+void getMaxOut(float outsideTemp){
   if(outsideTemp>maxTempOut){
     maxTempOut = outsideTemp;
   }else if(outsideTemp<minTempOut){
@@ -215,7 +215,7 @@ void disDHT(){
     lcd.print("Ins:");
     lcd.print(insideTemp, 1);
     lcd.print((char)223);
-    lcd.setCursor(0,1);
+    lcd.print("C ");
     lcd.print(hum);
     lcd.print("%");
     //delay(5000);
@@ -228,12 +228,12 @@ void disDHT(){
 //Reads the DHT11 sensor
 int readDHT(){
   hum = dht.readHumidity();   //rads data from sensor
-  insideTemp = dht.readTemperature();
+  insideTemp = dht.readTemperature() - 2.0;
   if(isnan(hum) || isnan(insideTemp)){  //isnan checks if is not a number(error code for dht is not a number)
     return 0;
   }else {
     getMaxIns(insideTemp, hum);    //updates max/min values
-    getMaxOut(outsideTemp);
+    //getMaxOut(outsideTemp);
     return 1;
   }
 }
@@ -246,20 +246,20 @@ void LIGHT()
   if(ldr > 800) // If dark detected
   {
     digitalWrite(RELAY, HIGH); // RELAY ON
-    lcd.setCursor(13,0);
+    lcd.setCursor(14,0);
     lcd.write(0);// sun
     lcd.write(1);
-    lcd.setCursor(13, 1);
+    lcd.setCursor(14, 1);
     lcd.write(2);
     lcd.write(3);
   }
   else
   {
     digitalWrite(RELAY, LOW); // RELAY OFF
-    lcd.setCursor(13, 0);
+    lcd.setCursor(14, 0);
     lcd.write(4); //moon
     lcd.write(5);
-    lcd.setCursor(13, 1);
+    lcd.setCursor(14, 1);
     lcd.write(6);
     lcd.write(7);
   }
@@ -269,7 +269,7 @@ void LIGHT()
 void disMax(){
   //DHT11 data
   lcd.setCursor(0,0);
-  lcd.print("Max:");
+  lcd.print("Mx:");
   lcd.print(maxTempIns, 1);
   lcd.print((char)223); 
   lcd.print(maxHum);
@@ -279,7 +279,7 @@ void disMax(){
   lcd.print((char)223); 
   //DHT11 data
   lcd.setCursor(0,1);
-  lcd.print("Min:");
+  lcd.print("Mn:");
   lcd.print(minTempIns, 1);
   lcd.print((char)223); 
   lcd.print(minHum);
@@ -309,13 +309,10 @@ void display()
     isRefreshed();
     LIGHT();
     disDHT();
+    LM35read();
   }else if(buttonCounter == 1){   //displays outside data
     isRefreshed();
-    LIGHT();
-    LM35read();
-  }else{  //displays max values
-    isRefreshed();
-    disMax();
+    disMax(); 
   }
 }
 
@@ -328,7 +325,7 @@ void LM35read()
   //Vin = TEMPresult*Vref/(2^10)
   //Temp(C) = Vin/(10) = TEMPresult*Vref/(1200*10) + 2 
   outsideTemp = outsideTemp*1100/(1200*10.0) + 2.0;
-  lcd.setCursor(0,0);
+  lcd.setCursor(0,1);
   lcd.print("Outs:");
   lcd.print(outsideTemp, 1);
   lcd.print((char)223);
@@ -363,9 +360,9 @@ void incrementCounterOnPress() {
   buttonCounter++;
   refershed = false;
   if(isLongPressed == true){  //to go to screen max/min
-    buttonCounter = 2;
+    buttonCounter = 1;
   }
-  if (buttonCounter >= 3) {
+  if (buttonCounter >= 2) {
     buttonCounter = 0; // Reset counter to 0 if it reaches or exceeds 3
   }
 }
