@@ -16,9 +16,14 @@ LCD_I2C lcd(0x27, 16, 2);
 DHT dht(dhtPin, DHT22);    
 //global variable
 bool buttonpress = true;
-int hum, insideTemp, outsideTemp;
-int maxTempOut, minTempOut, maxTempIns, minTempIns;
-int maxHum, minHum;
+int hum;
+float insideTemp, outsideTemp;
+float maxTempOut;
+float minTempOut = 100;
+float maxTempIns;
+float minTempIns = 100;
+int maxHum;
+int minHum = 100;
 int buttonstate = 0;  //button state   
 //if screen has been cleared
 bool refershed = false;
@@ -161,6 +166,8 @@ void setup()
   lcd.createChar(7, moon4);
   //button
   attachInterrupt(digitalPinToInterrupt(buttonPin), buttonInterruptHandler, CHANGE);
+  lcd.setCursor(0,0);
+  lcd.print("Weather Station");
   delay(3000);
 }
 
@@ -194,18 +201,18 @@ void getMaxOut(double outsideTemp){
 //Resets max and min values
 void resetMax(){
   maxTempIns = 0;
-  minTempIns = 0;
+  minTempIns = 100;
   maxHum = 0;
-  minHum = 0;
+  minHum = 100;
   maxTempOut = 0;
-  minTempOut = 0;
+  minTempOut = 100;
 }
 
 //displays DHT11 sensor data
 void disDHT(){
   if(readDHT()==1){   //1 means sensor read correctly
     lcd.setCursor(0,0);
-    lcd.print("Inside:");
+    lcd.print("Ins:");
     lcd.print(insideTemp, 1);
     lcd.print((char)223);
     lcd.setCursor(0,1);
@@ -268,7 +275,6 @@ void disMax(){
   lcd.print(maxHum);
   lcd.print("%|");
   //LM35 data
-  lcd.setCursor(10,0);
   lcd.print(maxTempOut, 1);
   lcd.print((char)223); 
   //DHT11 data
@@ -279,7 +285,6 @@ void disMax(){
   lcd.print(minHum);
   lcd.print("%|");
   //LM35 data
-  lcd.setCursor(10,1);
   lcd.print(minTempOut, 1);
   lcd.print((char)223); 
 
@@ -324,7 +329,7 @@ void LM35read()
   //Temp(C) = Vin/(10) = TEMPresult*Vref/(1200*10) + 2 
   outsideTemp = outsideTemp*1100/(1200*10.0) + 2.0;
   lcd.setCursor(0,0);
-  lcd.print("Outside:");
+  lcd.print("Outs:");
   lcd.print(outsideTemp, 1);
   lcd.print((char)223);
   lcd.print("C");
